@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management · MVC + localStorage</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f6f9fc 0%, #e9f1f8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 1rem;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0b2b44;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        h1 span {
+            background: #1e6f9f;
+            color: white;
+            font-size: 1.2rem;
+            border-radius: 40px;
+            padding: 0.2rem 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .subhead {
+            color: #2c4e6b;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            border-left: 4px solid #3e8fb0;
+            padding-left: 1rem;
+            background: rgba(62, 143, 176, 0.06);
+            border-radius: 0 12px 12px 0;
+            font-size: 1rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 20px -8px rgba(0, 20, 30, 0.15);
+            border: 1px solid #d9e7f0;
+        }
+
+        .form-title {
+            font-weight: 600;
+            color: #134b6b;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem 1.25rem;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #2f5570;
+        }
+
+        .input-group input {
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            border: 1.5px solid #cbdde9;
+            font-size: 0.95rem;
+            background: #fafdff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #3e8fb0;
+            box-shadow: 0 0 0 4px rgba(62, 143, 176, 0.15);
+            background: #ffffff;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: white;
+            color: #1a4c6b;
+            border: 1.5px solid #b8d2e3;
+            box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary {
+            background: #1e6f9f;
+            color: white;
+            border: 1.5px solid #1e6f9f;
+            box-shadow: 0 8px 16px -6px #1e6f9f66;
+        }
+
+        .btn-primary:hover {
+            background: #155b82;
+            border-color: #155b82;
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px -8px #1e6f9f99;
+        }
+
+        .btn-secondary {
+            background: #eef5fa;
+            border: 1.5px solid #b8d2e3;
+            color: #134b6b;
+        }
+
+        .btn-secondary:hover {
+            background: #e2edf6;
+            border-color: #8bb3ce;
+        }
+
+        .btn-danger {
+            background: #fff4f0;
+            border: 1.5px solid #f7c9b9;
+            color: #b13e2d;
+        }
+
+        .btn-danger:hover {
+            background: #ffe8e0;
+            border-color: #e09b88;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.9rem;
+            font-size: 0.8rem;
+            border-radius: 0.75rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            pointer-events: none;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0b2b44;
+        }
+
+        .badge {
+            background: #d9eaf3;
+            color: #134b6b;
+            padding: 0.25rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 1.25rem;
+            border: 1px solid #d9e7f0;
+            background: white;
+            box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem 1.25rem;
+            background: #eef5fa;
+            font-weight: 600;
+            color: #1b4a66;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1.5px solid #c8ddec;
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e3eef6;
+            color: #1e3e54;
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fcff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .empty-message {
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #688a9f;
+            font-style: italic;
+            background: #fafdff;
+        }
+
+        .footer-note {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #6e8da2;
+            text-align: right;
+            border-top: 1px solid #d0e2ee;
+            padding-top: 1rem;
+        }
+
+        .edit-highlight {
+            background: #fff9e6;
+            outline: 2px solid #f0c45a;
+            border-radius: 0.75rem;
+        }
+
+        @media (max-width: 600px) {
+            .app-container {
+                padding: 1.25rem;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .form-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <h1>
+            👥 Employee Manager
+            <span>MVC</span>
+        </h1>
+        <div class="subhead">Add, edit, or remove employees — data persists in your browser via localStorage.</div>
+
+        <!-- ==================== VIEW: Add/Edit Form ==================== -->
+        <div class="form-card">
+            <div class="form-title">
+                <span id="formIcon">➕</span>
+                <span id="formTitle">Add new employee</span>
+            </div>
+            <form id="employeeForm" class="form-grid">
+                <div class="input-group">
+                    <label for="empName">Full name</label>
+                    <input type="text" id="empName" placeholder="e.g. Jamie Chen" required>
+                </div>
+                <div class="input-group">
+                    <label for="empEmail">Email</label>
+                    <input type="email" id="empEmail" placeholder="jamie@company.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="empRole">Role / Position</label>
+                    <input type="text" id="empRole" placeholder="Product Designer" required>
+                </div>
+                <div class="input-group">
+                    <label for="empSalary">Salary (PKR)</label>
+                    <input type="number" id="empSalary" min="0" step="1000" placeholder="75000" required>
+                </div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">➕ Add employee</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn"
+                        style="display: none;">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ==================== VIEW: Employee Table ==================== -->
+        <div class="table-header">
+            <h2>📋 Employee records</h2>
+            <div class="badge" id="employeeCount">0 employees</div>
+        </div>
+
+        <div class="table-wrapper" id="tableWrapper">
+            <table id="employeeTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Salary</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- rows injected by View -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-message">No employees yet. Add your first record above.</div>
+        </div>
+        <div class="footer-note">
+            💾 MVC architecture · Data saved in localStorage · Changes persist after refresh.
+        </div>
+    </div>
+
+    <script>
+        /**
+         * =========================================================================
+         *  MVC ARCHITECTURE
+         *  -------------------------------------------------------------------------
+         *  Model      → EmployeeModel    : data + localStorage persistence
+         *  View       → EmployeeView     : DOM rendering & form state
+         *  Controller → EmployeeController: binds user actions to model/view
+         * =========================================================================
+         */
+
+        // ============================ MODEL ============================
+        const EmployeeModel = (function () {
+            const STORAGE_KEY = 'employee_management_records_mvc';
+            let employees = [];
+
+            // ---- persistence ----
+            function load() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        employees = Array.isArray(parsed)
+                            ? parsed.filter(emp => emp && typeof emp === 'object' && emp.id)
+                            : [];
+                    } else {
+                        employees = [];
+                    }
+                } catch (e) {
+                    console.warn('Model: failed to load, starting fresh.', e);
+                    employees = [];
+                }
+                return employees;
+            }
+
+            function persist() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
+                } catch (e) {
+                    alert('Could not save data. Storage may be full or blocked.');
+                }
+            }
+
+            // ---- helpers ----
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+            }
+
+            // ---- public API ----
+            return {
+                /** Initialise model from storage */
+                init() {
+                    employees = load();
+                    return this.getAll();
+                },
+
+                /** Return a shallow copy of all employees */
+                getAll() {
+                    return employees.map(emp => ({ ...emp }));
+                },
+
+                /** Find a single employee by id */
+                getById(id) {
+                    const emp = employees.find(e => e.id === id);
+                    return emp ? { ...emp } : null;
+                },
+
+                /** Add new employee, returns the created record */
+                add(data) {
+                    const newEmployee = {
+                        id: generateId(),
+                        name: data.name.trim(),
+                        email: data.email.trim(),
+                        role: data.role.trim(),
+                        salary: Number(data.salary)
+                    };
+                    employees.push(newEmployee);
+                    persist();
+                    return { ...newEmployee };
+                },
+
+                /** Update existing employee by id, returns updated record or null */
+                update(id, data) {
+                    const index = employees.findIndex(e => e.id === id);
+                    if (index === -1) return null;
+
+                    employees[index] = {
+                        ...employees[index],
+                        name: data.name.trim(),
+                        email: data.email.trim(),
+                        role: data.role.trim(),
+                        salary: Number(data.salary)
+                    };
+                    persist();
+                    return { ...employees[index] };
+                },
+
+                /** Remove employee by id, returns true if removed */
+                remove(id) {
+                    const before = employees.length;
+                    employees = employees.filter(e => e.id !== id);
+                    if (employees.length !== before) {
+                        persist();
+                        return true;
+                    }
+                    return false;
+                },
+
+                /** Return number of employees */
+                count() {
+                    return employees.length;
+                }
+            };
+        })();
+
+        // ============================ VIEW ============================
+        const EmployeeView = (function () {
+            // ---- DOM cache ----
+            const form = document.getElementById('employeeForm');
+            const nameInput = document.getElementById('empName');
+            const emailInput = document.getElementById('empEmail');
+            const roleInput = document.getElementById('empRole');
+            const salaryInput = document.getElementById('empSalary');
+            const submitBtn = document.getElementById('submitBtn');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const formTitle = document.getElementById('formTitle');
+            const formIcon = document.getElementById('formIcon');
+            const tableBody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+            const employeeCount = document.getElementById('employeeCount');
+            const employeeTable = document.getElementById('employeeTable');
+
+            // ---- helpers ----
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function formatSalary(value) {
+                const num = Number(value);
+                if (isNaN(num)) return '$0';
+                return num.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0
+                });
+            }
+
+            // ---- render list ----
+            function renderList(employees, editingId) {
+                const count = employees.length;
+                employeeCount.textContent = `${count} employee${count !== 1 ? 's' : ''}`;
+
+                if (count === 0) {
+                    employeeTable.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    tableBody.innerHTML = '';
+                    return;
+                }
+
+                employeeTable.style.display = 'table';
+                emptyState.style.display = 'none';
+
+                let html = '';
+                employees.forEach(emp => {
+                    const isEditing = emp.id === editingId;
+                    const rowClass = isEditing ? 'edit-highlight' : '';
+                    html += `
+                    <tr data-id="${emp.id}" class="${rowClass}">
+                        <td><strong>${escapeHtml(emp.name)}</strong></td>
+                        <td>${escapeHtml(emp.email)}</td>
+                        <td>${escapeHtml(emp.role)}</td>
+                        <td>${formatSalary(emp.salary)}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button type="button" class="btn btn-sm btn-secondary edit-btn"
+                                        data-id="${emp.id}" title="Edit">✏️ Edit</button>
+                                <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                        data-id="${emp.id}" title="Delete">🗑️ Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                });
+                tableBody.innerHTML = html;
+            }
+
+            // ---- form state ----
+            function setAddMode() {
+                form.reset();
+                submitBtn.innerHTML = '➕ Add employee';
+                formTitle.textContent = 'Add new employee';
+                formIcon.textContent = '➕';
+                cancelEditBtn.style.display = 'none';
+                nameInput.focus();
+            }
+
+            function setEditMode(employee) {
+                nameInput.value = employee.name;
+                emailInput.value = employee.email;
+                roleInput.value = employee.role;
+                salaryInput.value = employee.salary;
+
+                submitBtn.innerHTML = '✏️ Update employee';
+                formTitle.textContent = 'Edit employee';
+                formIcon.textContent = '✏️';
+                cancelEditBtn.style.display = 'inline-flex';
+                nameInput.focus();
+            }
+
+            function getFormData() {
+                return {
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    role: roleInput.value.trim(),
+                    salary: salaryInput.value.trim()
+                };
+            }
+
+            // ---- public API ----
+            return {
+                /** Render everything (list + count + empty state) */
+                render(employees, editingId) {
+                    renderList(employees, editingId);
+                },
+
+                /** Show add mode on the form */
+                resetForm: setAddMode,
+
+                /** Populate form with employee data */
+                fillForm: setEditMode,
+
+                /** Read current form values */
+                getFormData,
+
+                /** Expose DOM nodes for the controller to bind events */
+                elements: {
+                    form,
+                    cancelEditBtn
+                }
+            };
+        })();
+
+        // ========================== CONTROLLER ==========================
+        const EmployeeController = (function (Model, View) {
+            let editingId = null;   // null = add mode, otherwise id being edited
+
+            // ---- helpers ----
+            function refresh() {
+                const employees = Model.getAll();
+                View.render(employees, editingId);
+            }
+
+            function resetToAddMode() {
+                editingId = null;
+                View.resetForm();
+                refresh();
+            }
+
+            // ---- event handlers ----
+            function handleSubmit(e) {
+                e.preventDefault();
+
+                const data = View.getFormData();
+
+                // validation
+                if (!data.name || !data.email || !data.role || !data.salary) {
+                    alert('All fields are required.');
+                    return;
+                }
+                const salaryNum = Number(data.salary);
+                if (isNaN(salaryNum) || salaryNum < 0) {
+                    alert('Please enter a valid positive salary amount.');
+                    return;
+                }
+                if (!data.email.includes('@') || !data.email.includes('.')) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                if (editingId) {
+                    // ---- UPDATE ----
+                    Model.update(editingId, data);
+                } else {
+                    // ---- CREATE ----
+                    Model.add(data);
+                }
+
+                resetToAddMode();
+            }
+
+            function handleCancelEdit() {
+                resetToAddMode();
+            }
+
+            function handleTableClick(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                const id = target.dataset.id;
+                if (!id) return;
+
+                // ---- EDIT ----
+                if (target.classList.contains('edit-btn')) {
+                    const employee = Model.getById(id);
+                    if (!employee) return;
+                    editingId = id;
+                    View.fillForm(employee);
+                    refresh();
+                    return;
+                }
+
+                // ---- DELETE ----
+                if (target.classList.contains('delete-btn')) {
+                    const employee = Model.getById(id);
+                    if (!employee) return;
+
+                    if (confirm(`Delete "${employee.name}"? This cannot be undone.`)) {
+                        if (editingId === id) {
+                            // cancel edit if the deleted record is being edited
+                            editingId = null;
+                            View.resetForm();
+                        }
+                        Model.remove(id);
+                        refresh();
+                    }
+                }
+            }
+
+            // ---- public API ----
+            return {
+                /** Boot the application */
+                init() {
+                    // 1. load data into model
+                    Model.init();
+
+                    // 2. bind events
+                    View.elements.form.addEventListener('submit', handleSubmit);
+                    View.elements.cancelEditBtn.addEventListener('click', handleCancelEdit);
+
+                    // delegation for edit/delete buttons in the table
+                    document.getElementById('tableBody').addEventListener('click', handleTableClick);
+
+                    // 3. initial render
+                    resetToAddMode();
+                }
+            };
+        })(EmployeeModel, EmployeeView);
+
+        // ============================ BOOTSTRAP ============================
+        EmployeeController.init();
+    </script>
+</body>
+
+</html>
