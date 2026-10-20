@@ -28,8 +28,12 @@ A simple CRUD application to manage employee records, built with vanilla JavaScr
 - **View** — DOM rendering
 - **Controller** — Binds user actions to Model/View
 
-## 📖 How to Run
+## 📸 Screenshots
 
-1. Clone the repo:
-   ```bash
-   git clone https://mhummadhamza321-commits.github.io/employee-management-system/.git
+### Main View
+<img width="1920" height="922" alt="image" src="https://github.com/user-attachments/assets/9611f588-b5bb-455e-ba88-1484ec1bcb58" />
+
+
+### Add Employee
+<img width="1898" height="883" alt="image" src="https://github.com/user-attachments/assets/a410d138-4f7d-41a3-a0d4-6cd7330d4969" />
+
